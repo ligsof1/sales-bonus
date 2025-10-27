@@ -9,7 +9,6 @@ function calculateSimpleRevenue(purchase, _product) {
     const discountRate = 1 - (discount / 100);
     return sale_price * quantity * discountRate;
 }
-
 /**
  * Функция для расчета бонусов
  * @param index порядковый номер в отсортированном массиве
