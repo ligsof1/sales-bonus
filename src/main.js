@@ -66,26 +66,26 @@ function analyzeSalesData(data, options) {
     const productIndex = Object.fromEntries(data.products.map(p => [p.sku, p]));
 
     data.purchase_records.forEach(record => {
-        const seller = sellerIndex[record.seller_id];
-        if (!seller) return;
+    const seller = sellerIndex[record.seller_id];
+    if (!seller) return;
 
-        seller.sales_count += 1;
-        seller.revenue += record.total_amount - record.total_discount;
+    seller.sales_count += 1;
 
-        record.items.forEach(item => {
-            const product = productIndex[item.sku];
-            const cost = product ? product.purchase_price * item.quantity : 0;
-            const revenue = calculateRevenue(item, product);
-            const profit = revenue - cost;
+    record.items.forEach(item => {
+        const product = productIndex[item.sku];
+        const cost = product ? product.purchase_price * item.quantity : 0;
+        const revenue = calculateRevenue(item, product);
+        const profit = revenue - cost;
 
-            seller.profit += profit;
+        seller.revenue += revenue;   // ← вот здесь накапливаем выручку
+        seller.profit += profit;
 
-            if (!seller.products_sold[item.sku]) {
-                seller.products_sold[item.sku] = 0;
-            }
-            seller.products_sold[item.sku] += item.quantity;
-        });
+        if (!seller.products_sold[item.sku]) {
+            seller.products_sold[item.sku] = 0;
+        }
+        seller.products_sold[item.sku] += item.quantity;
     });
+});
 
     sellerStats.sort((a, b) => b.profit - a.profit);
 
