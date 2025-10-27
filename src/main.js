@@ -9,6 +9,7 @@ function calculateSimpleRevenue(purchase, _product) {
     const discountRate = 1 - (discount / 100);
     return sale_price * quantity * discountRate;
 }
+
 /**
  * Функция для расчета бонусов
  * @param index порядковый номер в отсортированном массиве
@@ -20,13 +21,13 @@ function calculateBonusByProfit(index, total, seller) {
     const { profit } = seller;
 
     if (index === 0) {
-        return profit * 0.15; 
+        return profit * 0.15;
     } else if (index === 1 || index === 2) {
-        return profit * 0.10; 
+        return profit * 0.10;
     } else if (index === total - 1) {
-        return 0; 
+        return 0;
     } else {
-        return profit * 0.05; 
+        return profit * 0.05;
     }
 }
 
@@ -37,6 +38,7 @@ function calculateBonusByProfit(index, total, seller) {
  * @returns {{revenue, top_products, bonus, name, sales_count, profit, seller_id}[]}
  */
 function analyzeSalesData(data, options) {
+    
     if (!data
         || !Array.isArray(data.sellers) || data.sellers.length === 0
         || !Array.isArray(data.products) || data.products.length === 0
@@ -66,27 +68,26 @@ function analyzeSalesData(data, options) {
     const productIndex = Object.fromEntries(data.products.map(p => [p.sku, p]));
 
     data.purchase_records.forEach(record => {
-    const seller = sellerIndex[record.seller_id];
-    if (!seller) return;
+        const seller = sellerIndex[record.seller_id];
+        if (!seller) return;
 
-    seller.sales_count += 1;
+        seller.sales_count += 1;
 
-    record.items.forEach(item => {
-    const product = productIndex[item.sku];
-    const cost = product ? product.purchase_price * item.quantity : 0;
+        record.items.forEach(item => {
+            const product = productIndex[item.sku];
+            const cost = product ? product.purchase_price * item.quantity : 0;
+            const revenue = calculateRevenue(item, product);
+            const profit = revenue - cost;
 
-    const revenue = calculateRevenue(item, product);
-    const profit = revenue - cost;
+            seller.revenue += revenue;
+            seller.profit += profit;
 
-    seller.revenue = +(seller.revenue + revenue).toFixed(2);
-    seller.profit  = +(seller.profit  + profit).toFixed(2);
-
-    if (!seller.products_sold[item.sku]) {
-        seller.products_sold[item.sku] = 0;
-    }
-    seller.products_sold[item.sku] += item.quantity;
-});
-});
+            if (!seller.products_sold[item.sku]) {
+                seller.products_sold[item.sku] = 0;
+            }
+            seller.products_sold[item.sku] += item.quantity;
+        });
+    });
 
     sellerStats.sort((a, b) => b.profit - a.profit);
 
