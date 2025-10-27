@@ -72,19 +72,21 @@ function analyzeSalesData(data, options) {
     seller.sales_count += 1;
 
     record.items.forEach(item => {
-        const product = productIndex[item.sku];
-        const cost = product ? product.purchase_price * item.quantity : 0;
-        const revenue = calculateRevenue(item, product);
-        const profit = revenue - cost;
+    const product = productIndex[item.sku];
+    const cost = product ? product.purchase_price * item.quantity : 0;
 
-        seller.revenue += revenue;   // ← вот здесь накапливаем выручку
-        seller.profit += profit;
+    const revenue = calculateRevenue(item, product);
+    const roundedRevenue = +revenue.toFixed(2);
+    const profit = +(roundedRevenue - cost).toFixed(2);
 
-        if (!seller.products_sold[item.sku]) {
-            seller.products_sold[item.sku] = 0;
-        }
-        seller.products_sold[item.sku] += item.quantity;
-    });
+    seller.revenue += roundedRevenue;
+    seller.profit += profit;
+
+    if (!seller.products_sold[item.sku]) {
+        seller.products_sold[item.sku] = 0;
+    }
+    seller.products_sold[item.sku] += item.quantity;
+});
 });
 
     sellerStats.sort((a, b) => b.profit - a.profit);
