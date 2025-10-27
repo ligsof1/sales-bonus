@@ -76,11 +76,10 @@ function analyzeSalesData(data, options) {
     const cost = product ? product.purchase_price * item.quantity : 0;
 
     const revenue = calculateRevenue(item, product);
-    const roundedRevenue = +revenue.toFixed(2);
-    const profit = +(roundedRevenue - cost).toFixed(2);
+    const profit = revenue - cost;
 
-    seller.revenue += roundedRevenue;
-    seller.profit += profit;
+    seller.revenue += revenue;   // без округления
+    seller.profit += profit;     // без округления
 
     if (!seller.products_sold[item.sku]) {
         seller.products_sold[item.sku] = 0;
